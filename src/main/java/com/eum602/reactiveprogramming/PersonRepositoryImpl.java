@@ -17,6 +17,6 @@ public class PersonRepositoryImpl implements PersonRepository {
 
     @Override
     public Flux<Person> findAll() {
-        return Flux.just(jhon,alice,alice,eve,bob);
+        return Flux.just(jhon,alice,eve,bob);
     }
 }
