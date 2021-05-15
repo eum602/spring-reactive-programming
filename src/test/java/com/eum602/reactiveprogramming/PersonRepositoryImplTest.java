@@ -3,15 +3,10 @@ package com.eum602.reactiveprogramming;
 import com.eum602.reactiveprogramming.domain.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class PersonRepositoryImplTest {
 
@@ -33,6 +28,14 @@ class PersonRepositoryImplTest {
     @Test
     void getByIdSubscribe() {
         Mono<Person> personMono = personRepository.getById(1);
+        personMono.subscribe(person -> {
+            System.out.println("Non blocking: " + person.toString());
+        });
+    }
+
+    @Test
+    void getByIdSubscribeNotFoud() {
+        Mono<Person> personMono = personRepository.getById(90);
         personMono.subscribe(person -> {
             System.out.println("Non blocking: " + person.toString());
         });
