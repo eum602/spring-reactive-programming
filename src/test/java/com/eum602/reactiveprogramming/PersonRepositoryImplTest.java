@@ -3,10 +3,13 @@ package com.eum602.reactiveprogramming;
 import com.eum602.reactiveprogramming.domain.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -76,5 +79,54 @@ class PersonRepositoryImplTest {
                 System.out.println(person.toString());
             });
         });
+    }
+
+    @Test
+    void testFindPersonById() {
+        Flux<Person> personFlux = personRepository.findAll();
+
+        final  Integer id = 3;
+
+        Mono<Person> personMono = personFlux.filter(person -> person.getId() == id).next();
+        //next-> emits a Mono
+
+        personMono.subscribe(person -> {
+            System.out.println(person.toString());//only prints the object with id=3
+        });
+    }
+
+    @Test
+    void testFindPersonByIdNotFound() {
+        Flux<Person> personFlux = personRepository.findAll();
+
+        final  Integer id = 8;
+
+        Mono<Person> personMono = personFlux.filter(person -> person.getId() == id).next();
+        //next-> emits a Mono
+
+        personMono.subscribe(person -> {
+            System.out.println(person.toString());//returns nothing since "8" index does not exist
+        });
+    }
+
+    @Test
+    void testFindPersonByIdNotFoundWithException() {
+
+        Flux<Person> personFlux = personRepository.findAll();
+
+        final  Integer id = 8;
+        Mono<Person> personMono = personFlux.filter(person -> person.getId() == id).single();
+        //single -> throws an exception when the object is not found or the "id" is out of bounds
+        personMono
+                .doOnError(throwable -> {
+                    System.out.println("Somehting happened, here is expected to have some recovery operations");
+                })
+                //.onErrorReturn(Person.builder().build())
+                .onErrorReturn(Person.builder().id(id).build())//returning an object with null values
+                //on error simply returning null
+                .subscribe(person -> {
+                    System.out.println(person.toString());//only prints the object with id=3
+                });
+
     }
 }
