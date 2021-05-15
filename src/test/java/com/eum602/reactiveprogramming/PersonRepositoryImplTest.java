@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.List;
 
@@ -28,6 +29,8 @@ class PersonRepositoryImplTest {
     @Test
     void getByIdSubscribe() {
         Mono<Person> personMono = personRepository.getById(1);
+
+        StepVerifier.create(personMono).expectNextCount(1).verifyComplete(); //expects only one interaction until finding the element
         personMono.subscribe(person -> {
             System.out.println("Non blocking: " + person.toString());
         });
@@ -36,6 +39,9 @@ class PersonRepositoryImplTest {
     @Test
     void getByIdSubscribeNotFoud() {
         Mono<Person> personMono = personRepository.getById(90);
+        //StepVerifier.create(personMono).verifyComplete();//non expecting nothing but only to complete
+        StepVerifier.create(personMono).expectNextCount(0);//correct because the empty model returns nothing
+        //StepVerifier.create(personMono).expectNextCount(3);//fails because the model returns nothing
         personMono.subscribe(person -> {
             System.out.println("Non blocking: " + person.toString());
         });
@@ -66,6 +72,8 @@ class PersonRepositoryImplTest {
     @Test
     void testFluxSubscribe() {
         Flux<Person> personFlux = personRepository.findAll();
+        StepVerifier.create(personFlux).expectNextCount(4).verifyComplete();//correct because it will sweep 4 cases because there are only five in the repository
+
         personFlux.subscribe(person -> {
             System.out.println(person.toString());
         });
