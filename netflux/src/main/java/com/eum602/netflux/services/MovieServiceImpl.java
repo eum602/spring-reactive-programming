@@ -2,6 +2,7 @@ package com.eum602.netflux.services;
 
 import com.eum602.netflux.domain.Movie;
 import com.eum602.netflux.repositories.MovieRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -9,6 +10,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class MovieServiceImpl implements MovieService {
 
+    @Autowired
     private MovieRepository movieRepository;
 
     @Override
