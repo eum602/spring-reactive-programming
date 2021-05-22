@@ -38,8 +38,9 @@
 		</dependency>
 		<dependency>
 			<groupId>de.flapdoodle.embed</groupId>
+			<!--flapdoodle used for embedded mongo for testing purposes-->
 			<artifactId>de.flapdoodle.embed.mongo</artifactId>
-			<scope>test</scope>
+			<!--<scope>test</scope>-->
 		</dependency>
 		<dependency>
 			<groupId>io.projectreactor</groupId>
