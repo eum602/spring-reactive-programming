@@ -5,8 +5,11 @@ import com.eum602.webclientapp.model.BeerDto;
 import com.eum602.webclientapp.model.BeerPagedList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -94,6 +97,16 @@ class BeerClientImplTest {
 
     @Test
     void createBeer() {
+        BeerDto beerDto = BeerDto
+                .builder()
+                .beerName("Pilsen")
+                .beerStyle("ALE")
+                .upc("12345678")
+                .price(new BigDecimal(10.05))
+                .build();
+        Mono<ResponseEntity<Void>> responseEntityMono =  beerClient.createBeer(beerDto);
+        ResponseEntity responseEntity = responseEntityMono.block();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     }
 
     @Test
