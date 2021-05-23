@@ -26,10 +26,30 @@ class BeerClientImplTest {
     }
 
     @Test
-    void getBeerById() {
+    void listBeersPageSize10() {
+        Mono<BeerPagedList> beerPagedListMono = beerClient.listBeers(1,10,null,null,null);
+        BeerPagedList pagedList = beerPagedListMono.block();
+        /*pagedList.forEach(page -> {
+            System.out.println("::::::::::::::::::::" + page);
+        });*/
+        assertThat(pagedList).isNotNull();
+        assertThat(pagedList.getContent().size()).isEqualTo(10); //isEqualTo -> means our content should be limited to.
     }
 
+    @Test
+    void listBeersNoRecords() {
+        Mono<BeerPagedList> beerPagedListMono = beerClient.listBeers(10,20,null,null,null);
+        BeerPagedList pagedList = beerPagedListMono.block();
+        pagedList.forEach(page -> {
+            System.out.println("::::::::::::::::::::" + page);
+        });
+        assertThat(pagedList).isNotNull();
+        assertThat(pagedList.getContent().size()).isEqualTo(0);
+    }
 
+    @Test
+    void getBeerById() {
+    }
 
     @Test
     void createBeer() {
