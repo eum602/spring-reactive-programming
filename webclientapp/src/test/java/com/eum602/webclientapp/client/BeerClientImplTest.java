@@ -12,6 +12,8 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -70,6 +72,27 @@ class BeerClientImplTest {
         }).subscribe(id ->{
             assertThat(id).isEqualTo(beerId);
         });
+    }
+
+    @Test
+    void functionalTestGetBeerById() throws InterruptedException {
+        AtomicReference<String> beerName = new AtomicReference<>();
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);//for testing concurrent applications and multithreaded environments
+
+        beerClient.listBeers(null,null,null,null,null)
+                .map(beerPagedList -> beerPagedList.getContent().get(0).getId())
+                .map(beerId -> beerClient.getBeerById(beerId,false))
+                .flatMap(mono -> mono)
+                .subscribe(beerDto -> {
+                    System.out.println(beerDto.getBeerName());
+                    beerName.set(beerDto.getBeerName());
+                    assertThat(beerName.get()).isEqualTo("Mango Bobs");
+                    countDownLatch.countDown();
+                });
+        //Thread.sleep(3000); //adding this in order to avoid the test finishing before the response comes comes.
+        countDownLatch.await(); //stops and waits until the countDownLatch has been incremented by the value of "1" -> because in that way was the countDownLatch declared -> new CountDownLatch(1)
+        assertThat(beerName.get()).isEqualTo("Mango Bobs");
     }
 
     @Test
