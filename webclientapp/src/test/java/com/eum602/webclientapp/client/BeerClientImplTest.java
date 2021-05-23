@@ -1,10 +1,13 @@
 package com.eum602.webclientapp.client;
 
 import com.eum602.webclientapp.config.WebClientConfig;
+import com.eum602.webclientapp.model.BeerDto;
 import com.eum602.webclientapp.model.BeerPagedList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -49,6 +52,44 @@ class BeerClientImplTest {
 
     @Test
     void getBeerById() {
+
+        Mono<BeerPagedList> beerPagedListMono = beerClient.listBeers(null,null,null,null,null);
+        BeerPagedList pagedList = beerPagedListMono.block();
+
+        UUID beerId = pagedList.getContent().get(0).getId();
+
+        Mono<BeerDto> beerDtoMono = beerClient.getBeerById(beerId,false);
+        beerDtoMono.map(el -> {
+            assertThat(el.getQuantityOnHand()).isNull();
+            return el.getId();
+        }).subscribe(id ->{
+            assertThat(id).isEqualTo(beerId);
+        });
+    }
+
+    @Test
+    void getBeerByIdShowInventoryTrue() {
+
+        Mono<BeerPagedList> beerPagedListMono = beerClient.listBeers(null,null,null,null,null);
+        BeerPagedList pagedList = beerPagedListMono.block();
+
+        UUID beerId = pagedList.getContent().get(0).getId();
+
+        Mono<BeerDto> beerDtoMono = beerClient.getBeerById(beerId,true);
+        beerDtoMono.map(el -> el.getQuantityOnHand()).subscribe(qty ->{
+            assertThat(qty).isNotNull();
+        });
+    }
+
+    @Test
+    void getBeerByUPC() {
+        Mono<BeerPagedList> beerPagedListMono = beerClient.listBeers(null,null,null,null,null);
+        BeerPagedList pagedList = beerPagedListMono.block();
+        String upc = pagedList.getContent().get(0).getUpc();
+        Mono<BeerDto> beerDtoMono = beerClient.getBeerByUPC(upc);
+        beerDtoMono.map(el -> el.getUpc()).subscribe(UPC -> {
+            assertThat(UPC).isEqualTo(upc);
+        });
     }
 
     @Test
@@ -61,9 +102,5 @@ class BeerClientImplTest {
 
     @Test
     void deleteBeerById() {
-    }
-
-    @Test
-    void getBeerByUPC() {
     }
 }
